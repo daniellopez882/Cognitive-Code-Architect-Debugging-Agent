@@ -6,10 +6,13 @@
 
 <br/>
 
-[![Intelligence](https://img.shields.io/badge/Intelligence-DeepSeek--V3-6366F1?style=for-the-badge&logo=deepseek)](https://deepseek.com)
-[![Framework](https://img.shields.io/badge/Orchestrator-LangGraph-FF6F00?style=for-the-badge&logo=langchain)](https://langchain-ai.github.io/langgraph/)
-[![Security](https://img.shields.io/badge/Audit-Security--First-D32F2F?style=for-the-badge)](https://owasp.org)
-[![Status](https://img.shields.io/badge/Build-Production--Ready-00C853?style=for-the-badge)]()
+[![Intelligence](https://img.shields.io/badge/Intelligence-DeepSeek--V3-6366F1?style=for-the-badge&logo=deepseek&logoColor=white)](https://deepseek.com)
+&nbsp;
+[![Framework](https://img.shields.io/badge/Stack-LangGraph-FF6F00?style=for-the-badge&logo=python&logoColor=white)](https://langchain-ai.github.io/langgraph/)
+&nbsp;
+[![Security](https://img.shields.io/badge/Audit-Certified-D32F2F?style=for-the-badge&logo=securityscorecard&logoColor=white)](https://owasp.org)
+&nbsp;
+[![Build](https://img.shields.io/badge/Build-Production--Ready-00C853?style=for-the-badge)](https://github.com/daniellopez882/Debugging-and-Code-Analyizer-Agent)
 
 <br/>
 

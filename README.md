@@ -117,6 +117,6 @@ python main.py
 
 *TitanAI: Code with the clarity of a Principal Architect.*
 
-Built with ❤️ by [Ismail Sajid](https://github.com/Ismail-2001)
+Built with ❤️ by [Daniel Lopez](https://github.com/daniellopez882/)
 
 </div>

@@ -1,162 +1,118 @@
 <div align="center">
 
-# ⚡ TitanAI: Cognitive Code Architect & Debugging Titan
-### A Production-Grade Autonomous Orchestrator Powered by LangGraph & DeepSeek-V3
+# ⚡ TITAN AI
+### **The World’s First Cognitive Code Architect & Autonomous Debugging Titan**
+*Where human expertise meets wire-speed intelligence.*
 
 <br/>
 
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![LangGraph](https://img.shields.io/badge/Framework-LangGraph_v0.2-FF6F00?style=for-the-badge)](https://langchain-ai.github.io/langgraph/)
-[![DeepSeek V3](https://img.shields.io/badge/Intelligence-DeepSeek_V3-6366F1?style=for-the-badge)](https://deepseek.com)
-[![Security](https://img.shields.io/badge/Audit-Security_First-D32F2F?style=for-the-badge)](https://owasp.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](./LICENSE)
+[![Intelligence](https://img.shields.io/badge/Intelligence-DeepSeek--V3-6366F1?style=for-the-badge&logo=deepseek)](https://deepseek.com)
+[![Framework](https://img.shields.io/badge/Orchestrator-LangGraph-FF6F00?style=for-the-badge&logo=langchain)](https://langchain-ai.github.io/langgraph/)
+[![Security](https://img.shields.io/badge/Audit-Security--First-D32F2F?style=for-the-badge)](https://owasp.org)
+[![Status](https://img.shields.io/badge/Build-Production--Ready-00C853?style=for-the-badge)]()
 
 <br/>
 
-> *"TitanAI isn't just a linter—it's a high-performance cognitive architect that reasons about your logic, predicts architectural failures, and autonomously crafts surgical code repairs."*
-
-**TitanAI** is a premium autonomous system designed for deep code auditing. Built on a **LangGraph-based cyclic architecture**, it employs **11 specialized reasoning nodes** to mirror the mental clarity of a principal staff engineer.
-
-[**🏗️ Architecture**](#-system-architecture) · [**🧠 Reasoning Core**](#-the-cognitive-pipeline) · [**🚀 Quick Start**](#-getting-started) · [**📊 Reporting**](#-enterprise-reporting)
+**[Website](https://github.com/daniellopez882/Debugging-and-Code-Analyizer-Agent)** • **[Architecture](#-the-cognitive-engine)** • **[Personas](#-engineer-personas)** • **[Quick Start](#-orbital-deployment)**
 
 ---
 
 </div>
 
-## 📌 The "Code Rot" Challenge
+## 💎 The Engineering Manifesto
 
-Enterprise codebases fail not just due to syntax errors, but because of:
-1.  **Invisible Logic Breaches**: Code that runs but produces incorrect outcomes.
-2.  **Architectural Drift**: Intentional patterns being ignored over time.
-3.  **Security Gaps**: Hardcoded secrets or unsafe parsing that static linters miss.
-4.  **Review Fatigue**: Human reviewers missing subtle concurrency or performance issues.
+Traditional linting is dead. Static analysis is a commodity. In the era of hyper-scale systems, **Code Rot** is the silent killer of innovation. 
 
-**CodeGuardian solves this** by treating code review as an agentic workflow. It doesn't just "check" code; it **reasons** about it across multiple specialized dimensions.
+**TitanAI** is not a tool; it is a **Cognitive Orchestrator**. It doesn't just scan syntax; it reasons through your architecture, predicts logical failures, and autonomously crafts surgical code repairs before they ever reach production. 
 
 ---
 
-## ✨ Titan-Level Intelligence
- 
- ### ⚡ Agentic Self-Correction (Auto-Fix)
-Powered by the `generate_fixes` node, TitanAI doesn't just point out problems—it engineers solutions. 
- - **Safe-Only Refactoring**: Automatically addresses medium-to-high severity issues that have high confidence scores.
- - **Human-in-the-loop (HITL)**: Advanced configuration allows for mandatory developer approval before applying security or architectural fixes.
- 
- ### 🛡️ 11-Phase Intelligence Pipeline
-TitanAI executes a strictly orchestrated cognitive workflow defined in `graph.py`:
- - **Static Analysis**: Pylint/Flake8/ESLint integration.
- - **Pattern Matching**: Detects anti-patterns and suboptimal "code smells".
- - **Security Audit**: Scans for CWE Top 25, insecure dependencies, and secret leakage.
- - **Performance Profiling**: Identifies N+1 queries, memory bottlenecks, and complexity spikes.
- - **Testing Assessment**: Audits test coverage and identifies "missing edge-case" scenarios.
- - **Logic Verification**: Deep reasoning about function intent vs. implementation.
- 
- ### ⚙️ Declarative Configuration (`.titanai.yml`)
- Manage your entire audit policy with a production-grade YAML spec:
- - Define excluded/included directory patterns.
- - Set complexity thresholds (Cyclomatic/Cognitive).
- - Configure language-specific linter rules.
- - Enable/Disable specific agent nodes based on performance needs.
+## 🚀 Titan-Grade Capabilities
+
+### 🧠 **11-Phase Cognitive Pipeline**
+TitanAI executes a strictly orchestrated reasoning graph powered by **LangGraph**. It views code through 11 distinct dimensions:
+- **Static Integrity**: Beyond basic linting.
+- **Architectural Drift**: Detecting pattern violations in real-time.
+- **Deep Security Audit**: Scanning for CWE Top 25 with LLM contextual reasoning.
+- **Performance Profiling**: Identifying O(n) bottlenecks and memory leaks.
+- **Logic Intelligence**: Verifying function intent vs. implementation.
+
+### 🎭 **Engineer Personas**
+Static reviews are boring. Scale your team with virtual specialists:
+- **The Grand Architect**: Professional, structural, and focused on patterns.
+- **The Supportive Mentor**: Educational and growth-oriented.
+- **Security Chief**: Paranoid, thorough, and uncompromising on safety.
+
+### 📊 **The Titan Score™**
+Your codebase now has a credit score. TitanAI aggregates findings into a single, high-fidelity grade (A+ to F), allowing executives and leads to see health at a glance.
 
 ---
 
-## 🏗️ System Architecture
-
-### The Cognitive Execution Graph
+## 🏗️ The Cognitive Engine
 
 ```mermaid
 graph TD
-    Start((Repo URL/Path)) --> Init[1. Initialization & Mapping]
-    Init --> Scope[2. Scope & Framework Discovery]
+    Start((Repo Input)) --> Init[Initialization]
+    Init --> Scope[Framework Discovery]
     
-    subgraph "The Reasoning Engine"
-    Scope --> Static[3. Static & Linter Check]
-    Static --> Pattern[4. Pattern & Design Audit]
-    Pattern --> Security[5. Deep Security Audit]
-    Security --> Perform[6. Performance Bottleneck scan]
-    Perform --> Testing[7. Testing & Coverage Analysis]
-    Testing --> Logic[8. Deep Logic Verification]
+    subgraph "Reasoning Core"
+    Scope --> Analysis[Multi-Agent Analysis]
+    Analysis --> Logic[Deep Logic Verification]
     end
     
-    Logic --> Synth[9. Synthesis & Prioritization]
-    
-    Synth -- Critical Issues Found --> Fix[10. Autonomous Fix Generation]
-    Synth -- "No Fixable/Safe Issues" --> Report[11. Report Generation]
-    
-    Fix --> Report
-    Report --> End((Final GitHub Issues / MD Report))
+    Logic --> Score[Titan Score Calculation]
+    Score --> Fix[Autonomous Fixes]
+    Fix --> Report[Premium Terminal Dashboard]
 ```
 
 ---
 
-## 📊 Enterprise Reporting Suite
+## 🌌 Experience the Premium UI
 
-CodeGuardian generates high-fidelity reports tailored for different stakeholders:
-- **Markdown Summary**: Optimized for GitHub Action logs and PR comments.
-- **JSON Structured Data**: For integration into existing CI/CD dashboards (Datadog/ELK).
-- **GitHub Issues Integration**: Automatically creates and labels issues for discovered vulnerabilities.
-
-### Sample Finding Snippet:
-```markdown
-### 🕵️ Finding: SEC-024 (Insecure SQL Handling)
-- **Severity**: 🔴 CRITICAL
-- **Location**: `src/db/manager.py:84`
-- **Reasoning**: User-controlled string 'query_tag' is directly interpolated into a raw SQL string, bypassing ORM protections.
-- **Recommendation**: Use a parameterized query or the helper method `safe_execute()`.
-- **Auto-Fix Generated**: ✅ YES (See PR Preview)
-```
+TitanAI doesn't just output text. It generates a **High-Fidelity Terminal Dashboard** using `rich`. Tables, progress bars, and color-coded grade panels ensure that the review process is as beautiful as it is powerful.
 
 ---
 
-## 🚀 Getting Started
+## 🔧 Orbital Deployment
 
 ### 1. Installation
 ```bash
-git clone https://github.com/Ismail-2001/Code-Review-and-Debugging-Agent.git
-cd Code-Review-and-Debugging-Agent
+# Clone the orbital repository
+git clone https://github.com/daniellopez882/Debugging-and-Code-Analyizer-Agent.git
+cd Debugging-and-Code-Analyizer-Agent
+
+# Install high-performance dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configuration
-Create a `.env` file in the root:
+### 2. Configure Your Core
+Create a `.env` in the root and add your intelligence provider:
 ```env
-OPENAI_API_KEY=sk-...
-# OR
-DEEPSEEK_API_KEY=sk-...
+GOOGLE_API_KEY=your_orbital_key
 ```
 
-Configure your standards in `.codeguardian.yml`.
-
-### 3. Run Your First Review
+### 3. Initiate Review
 ```bash
-# Analyze a local project
-python main.py --path /path/to/your/project --severity high
-
-# Analyze a specific branch
-python main.py --path /path/to/repo --branch feature/login-security
+python main.py
 ```
 
 ---
 
-## 🔭 The Lab Roadmap
+## 🔭 Roadmap to Singularity
 
-### ✅ Completed
-- [x] **LangGraph Orchestrator**: Multi-node state machine for reasoning.
-- [x] **Stateful Memory**: Preserves context across analysis phases.
-- [x] **Configuration Layer**: Full YAML-based control.
+- [x] **Cyclic State Machine**: LangGraph integration.
+- [x] **Premium UI/UX**: Terminal Dashboard.
+- [x] **Persona Engine**: Context-aware reviews.
+- [ ] **Cross-File Dependency Context**: Mapping an entire ecosystem.
+- [ ] **Autonomous PR Creation**: Closing the loop on fixes.
 
-### 🔨 Phase 2: Cognitive Depth (Next)
-- [ ] **Cross-File Dependency Mapping**: Detecting issues that span multiple modules.
-- [ ] **RAG-Powered Policies**: Auditing code against custom enterprise Wiki/Documentation.
-- [ ] **Interactive Debugger**: A CLI loop to chat with the agent about specific files.
-
----
+<br/>
 
 <div align="center">
 
-**Built for staff engineers. Powered by autonomous reasoning.**
+**Built for the 1%. Powered by Titan-Level Intelligence.**
 
-*CodeGuardian: Where expertise meets wire-speed.*
+*TitanAI: Code with the clarity of a Principal Architect.*
 
 Built with ❤️ by [Ismail Sajid](https://github.com/Ismail-2001)
 

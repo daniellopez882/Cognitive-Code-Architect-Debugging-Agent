@@ -1,0 +1,23 @@
+# Development and CI dependencies.
+#
+# Deliberately not `-r requirements.txt`: that file pins ~30 packages including
+# semgrep, py-spy and safety, which are slow to install and not needed to run
+# the suite. CI installs what the tests actually import.
+
+# Runtime pieces the tests exercise
+langgraph>=0.2,<2.0
+langchain-core>=0.3,<2.0
+gitpython>=3.1,<4.0
+radon>=6.0,<7.0
+pylint>=3.3,<4.0
+rich>=13.9,<15.0
+click>=8.1,<9.0
+python-dotenv>=1.0,<2.0
+pyyaml>=6.0,<7.0
+
+# Test and lint tooling
+pytest>=8.3,<9.0
+pytest-asyncio>=0.23,<2.0
+pytest-cov>=6.0,<8.0
+ruff>=0.6,<1.0
+bandit>=1.8,<2.0

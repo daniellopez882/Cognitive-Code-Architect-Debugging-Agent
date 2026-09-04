@@ -2,8 +2,8 @@
 RAG Engine for policy-based code review.
 """
 
-from typing import List, Dict, Any
 import os
+
 
 class RAGEngine:
     def __init__(self, standards_dir: str = "./standards"):
@@ -28,11 +28,11 @@ class RAGEngine:
         """
         if not self.is_initialized:
             return "RAG Engine not initialized with standards."
-        
+
         # Mocking the retrieval process
         return f"Policy found for: {query}. Code must follow strict encapsulation."
 
-    def verify_against_policy(self, code_snippet: str, file_path: str) -> List[Dict]:
+    def verify_against_policy(self, code_snippet: str, file_path: str) -> list[dict]:
         """
         Verify a code snippet against retrieved policies.
         """

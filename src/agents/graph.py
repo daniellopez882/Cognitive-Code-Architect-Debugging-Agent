@@ -64,7 +64,7 @@ def create_code_review_graph():
     workflow.add_edge("logic_verification", "policy_verification")
     workflow.add_edge("policy_verification", "synthesis")
 
-    # Conditional edge for fixes with human-in-the-loop approval
+    # Conditional edge: propose fixes only when asked (--auto-fix)
     workflow.add_conditional_edges(
         "synthesis",
         should_generate_fixes,
@@ -73,11 +73,16 @@ def create_code_review_graph():
     workflow.add_edge("fix_generation", "reporting")
     workflow.add_edge("reporting", END)
 
-    # Compile with checkpointer for HITL
+    # Compile with a checkpointer (per-thread state).
+    #
+    # interrupt_before=["fix_generation"] used to sit here "for user approval".
+    # The CLI never resumed the graph, so with --auto-fix -- the default at the
+    # time -- every run stopped after synthesis and no report was written.
+    # Nothing applies a fix, so there is nothing to approve: proposals go into
+    # the report for a human to read.
     memory = MemorySaver()
     return workflow.compile(
         checkpointer=memory,
-        interrupt_before=["fix_generation"],  # Wait for user approval
     )
 
 

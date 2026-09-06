@@ -5,7 +5,9 @@ Code Review and Debugging Agent - Main Entry Point
 
 import asyncio
 import os
+import shutil
 import sys
+import tempfile
 
 import click
 from dotenv import load_dotenv
@@ -26,6 +28,25 @@ console = Console()
 logger = setup_logger(__name__)
 
 
+def resolve_target(repository_url: str) -> tuple[str, str, bool]:
+    """
+    Decide where the code under review lives.
+
+    Returns ``(repository_url, local_path, is_temporary)``. An existing
+    directory is reviewed in place (``repository_url`` becomes ``"local"``);
+    anything else is treated as a clone URL and gets a fresh temporary
+    directory, which the caller removes afterwards.
+
+    The command used to pass ``local_path=""`` for every target, so the
+    initialisation node tried to clone into an empty path and failed with
+    ``FileNotFoundError`` before any analysis ran -- for a URL and for a
+    directory alike. The CLI could not review anything.
+    """
+    if os.path.isdir(repository_url):
+        return "local", os.path.abspath(repository_url), False
+    return repository_url, tempfile.mkdtemp(prefix="review-"), True
+
+
 @click.group()
 def cli():
     """Code Review and Debugging Agent CLI"""
@@ -42,7 +63,14 @@ def cli():
 )
 @click.option("--branch", default=None, help="Target branch for analysis")
 @click.option("--files", default=None, help="Comma-separated list of files to analyze")
-@click.option("--auto-fix/--no-auto-fix", default=True, help="Enable automatic fixes")
+@click.option(
+    "--auto-fix/--no-auto-fix",
+    default=False,
+    help=(
+        "Ask the model to propose fixes for auto-fixable findings. Proposals go "
+        "into the report; nothing is written to the repository."
+    ),
+)
 @click.option(
     "--severity",
     default="medium",
@@ -64,10 +92,11 @@ def review(repository_url, scope, branch, files, auto_fix, severity, output, for
 
     # Prepare initial state
     target_files = files.split(",") if files else None
+    repository_url, local_path, is_temporary = resolve_target(repository_url)
 
     initial_state = {
         "repository_url": repository_url,
-        "local_path": "",
+        "local_path": local_path,
         "review_scope": scope,
         "target_branch": branch,
         "target_files": target_files,
@@ -97,11 +126,17 @@ def review(repository_url, scope, branch, files, auto_fix, severity, output, for
     }
 
     # Run analysis
-    asyncio.run(run_analysis(initial_state, output, format))
+    try:
+        ok = asyncio.run(run_analysis(initial_state, output, format))
+    finally:
+        if is_temporary:
+            shutil.rmtree(local_path, ignore_errors=True)
+    if not ok:
+        sys.exit(1)
 
 
-async def run_analysis(initial_state: dict, output_dir: str, report_format: str):
-    """Execute the code review analysis."""
+async def run_analysis(initial_state: dict, output_dir: str, report_format: str) -> bool:
+    """Execute the code review analysis. Returns False if it did not complete."""
 
     # app is the compiled graph from graph.py
 
@@ -135,9 +170,13 @@ async def run_analysis(initial_state: dict, output_dir: str, report_format: str)
 
             # Save reports
             save_reports(final_state, output_dir, report_format)
+            return True
 
         except Exception as e:
+            # A run that did not finish must not exit 0: the caller would
+            # read an absent report as a clean one.
             console.print(f"[red]Error during analysis:[/red] {e!s}")
+            return False
             logger.error(f"Analysis failed: {e}", exc_info=True)
 
 
@@ -163,6 +202,14 @@ def display_summary(state: dict):
     console.print(f"🟡 Medium: {severity_counts['medium']}")
     console.print(f"🟢 Low: {severity_counts['low']}")
     console.print(f"ℹ️  Info: {severity_counts['info']}\n")
+
+    proposals = state.get("generated_fixes", [])
+    if proposals:
+        usable = sum(1 for p in proposals if p.get("status") == "proposed")
+        console.print(
+            f"Proposed fixes: [bold]{usable}[/bold] of {len(proposals)} usable "
+            "(in the report; not applied)\n"
+        )
 
     # Top issues
     if all_findings:

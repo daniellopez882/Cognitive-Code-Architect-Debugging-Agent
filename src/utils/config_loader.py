@@ -12,7 +12,7 @@ def load_config(config_path_or_repo: str) -> dict:
     default_config = {
         "enabled_checks": ["static_analysis", "security_audit", "performance_analysis"],
         "severity_threshold": "medium",
-        "auto_fix": {"enabled": True},
+        "auto_fix": {"enabled": False},
     }
 
     if path.exists():

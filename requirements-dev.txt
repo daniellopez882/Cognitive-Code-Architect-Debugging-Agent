@@ -1,0 +1,10 @@
+# Development and CI dependencies. Installing this also installs the runtime set,
+# which is now small enough for that to be the right default.
+-r requirements.txt
+
+pytest>=9.0.3,<10.0
+pytest-asyncio>=0.23,<2.0
+pytest-cov>=6.0,<8.0
+ruff>=0.6,<1.0
+bandit>=1.8,<2.0
+pip-audit>=2.7,<3.0

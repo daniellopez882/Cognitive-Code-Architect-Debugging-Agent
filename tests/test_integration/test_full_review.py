@@ -1,22 +1,25 @@
 import pytest
-import asyncio
+
 from agents.graph import app
-import os
+
 
 @pytest.mark.asyncio
 async def test_full_review_flow(tmp_path):
     """Test full repository review workflow."""
     repo_dir = tmp_path / "test_repo"
     repo_dir.mkdir()
-    
-    (repo_dir / "main.py").write_text("""
+
+    (repo_dir / "main.py").write_text(
+        """
 def vulnerable_function(user_input):
     # This is a mock script
     return user_input
 
 def long_function():
     # This will be long
-""" + "\n".join([f"    pass" for _ in range(60)]))
+"""
+        + "\n".join(["    pass" for _ in range(60)])
+    )
 
     initial_state = {
         "repository_url": "local",
@@ -44,19 +47,19 @@ def long_function():
         "current_step": "started",
         "analysis_start_time": 0.0,
         "user_feedback": [],
-        "skip_categories": []
+        "skip_categories": [],
     }
 
     config = {"configurable": {"thread_id": "test-session"}}
-    
+
     # In a test, we might not want to wait for HITL, so we ensure fixes are disabled or scope is limited
     # But for a basic flow test, we run it and expect it to reach the reporting step (or interrupt)
-    
+
     final_state = initial_state.copy()
     async for event in app.astream(initial_state, config):
         if isinstance(event, dict):
-            for node, state_delta in event.items():
+            for _node, state_delta in event.items():
                 final_state.update(state_delta)
-        
+
     assert "reporting_complete" in final_state.get("current_step", "")
     assert len(final_state.get("all_findings", [])) >= 1

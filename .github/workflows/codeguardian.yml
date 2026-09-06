@@ -10,6 +10,11 @@ jobs:
   review:
     name: Advanced Agentic Review
     runs-on: ubuntu-latest
+    # This job runs the reviewer against its own repository, which needs a
+    # Google API key. Without the secret configured it failed on every run in
+    # this repository's history -- a permanently red check that told nobody
+    # anything. It is skipped rather than failed when the credential is absent.
+    if: vars.CODEGUARDIAN_ENABLED == 'true'
     
     steps:
       - name: Checkout Code
@@ -26,6 +31,15 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Confirm the API key is present
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          if [ -z "$GOOGLE_API_KEY" ]; then
+            echo "::error::CODEGUARDIAN_ENABLED is set but GOOGLE_API_KEY is not."
+            exit 1
+          fi
 
       - name: Run CodeGuardian
         env:

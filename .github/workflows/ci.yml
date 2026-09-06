@@ -1,0 +1,134 @@
+name: CI
+
+# The only workflow here ran the reviewer against its own repository, which
+# needs a GOOGLE_API_KEY secret. Every run in the repository's history failed,
+# in ten to thirteen seconds, and nothing else was checked -- no lint, no
+# tests. The tests could not have run anyway: they were written against the
+# src/ layout and errored at collection.
+#
+# That self-review is still useful, so it is kept in codeguardian.yml as a
+# separate, credential-dependent workflow. This one gates the build.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Ruff lint
+        run: ruff check . --output-format=github
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Tests
+        # Hermetic: tests/conftest.py installs a fake chat model through
+        # agents.nodes.set_llm, so no test reaches a real provider.
+        env:
+          ENVIRONMENT: testing
+        run: pytest -q
+
+      - name: Fail if no tests were collected
+        run: |
+          out=$(pytest --collect-only -q 2>&1 | tail -1)
+          echo "collected: $out"
+          if echo "$out" | grep -qiE "no tests ran|^0 tests|error"; then
+            echo "::error::pytest collected no tests"
+            exit 1
+          fi
+
+      - name: The CLI runs from the documented entry point
+        # The README said `python main.py` while CI ran `python src/main.py`,
+        # and only one of the two trees imported successfully.
+        run: python main.py --help
+
+      - name: The graph wires implementations, not stubs
+        # graph.py used to define its own 12 stub nodes, shadowing nodes.py and
+        # leaving 300 lines of real analysis unreachable.
+        run: |
+          python - <<'PY'
+          import pathlib, sys
+          source = pathlib.Path("src/agents/graph.py").read_text(encoding="utf-8")
+          if "from agents.nodes import" not in source:
+              print("::error::graph.py no longer imports the node implementations")
+              sys.exit(1)
+          shadowed = [ln for ln in source.splitlines()
+                      if ln.startswith("def ") and "_node" in ln]
+          if shadowed:
+              print(f"::error::graph.py defines node stubs again: {shadowed}")
+              sys.exit(1)
+          print("graph wires the real nodes")
+          PY
+
+      - name: Bandit
+        run: bandit -q -r src -ll
+
+      - name: Dependency audit
+        run: pip-audit --progress-spinner off
+
+      - name: Fixes are proposals and off by default
+        # --auto-fix used to default to True and route the run into a graph
+        # interrupt the CLI never resumed, so no report was written.
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'src')
+          from main import cli
+          opt = next(p for p in cli.commands['review'].params if p.name == 'auto_fix')
+          assert opt.default is False, opt.default
+          print('auto-fix is opt-in')
+          PY
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: codeguardian:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: The CLI runs inside the image without credentials
+        # A CLI image has no port to probe; the entrypoint answering --help and
+        # the review command importing its graph are the boot check.
+        run: |
+          docker run --rm codeguardian:ci --help
+          docker run --rm codeguardian:ci review --help | grep -q -- '--auto-fix'
+
+      - name: Image does not run as root
+        run: |
+          uid=$(docker run --rm --entrypoint sh codeguardian:ci -c 'id -u')
+          echo "runs as uid $uid"
+          [ "$uid" != "0" ] || { echo "::error::image runs as root"; exit 1; }

@@ -1,73 +1,38 @@
-from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
-from agents.state import CodeReviewState
-import operator
+from langgraph.graph import END, StateGraph
 
 # Node functions
-def initialize_repository_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "initializing_repository"
-    return state
+# The 12 node functions were defined *here* as stubs -- placeholders that set a
+# status string and returned -- shadowing the real implementations in
+# agents/nodes.py. graph.py never imported nodes.py, so the workflow wired the
+# stubs and the 300 lines of actual analysis in nodes.py were dead code.
+#
+# The most visible symptom: create_reports_node returned a two-line placeholder
+# string instead of calling MarkdownReporter, and left current_step at
+# "creating_reports", so a completed run never signalled completion.
+from agents.nodes import (
+    assess_testing_node,
+    create_reports_node,
+    define_scope_node,
+    generate_fixes_node,
+    initialize_repository_node,
+    run_pattern_analysis_node,
+    run_performance_analysis_node,
+    run_security_audit_node,
+    run_static_analysis_node,
+    synthesize_findings_node,
+    verify_logic_node,
+    verify_policy_node,
+)
+from agents.state import CodeReviewState
 
-def define_scope_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "defining_scope"
-    return state
-
-def run_static_analysis_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "running_static_analysis"
-    return state
-
-def run_pattern_analysis_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "running_pattern_analysis"
-    return state
-
-def run_security_audit_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "running_security_audit"
-    return state
-
-def run_performance_analysis_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "running_performance_analysis"
-    return state
-
-def assess_testing_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "assessing_testing"
-    return state
-
-def verify_logic_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "verifying_logic"
-    return state
-
-def verify_policy_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "verifying_policy"
-    return state
-
-def synthesize_findings_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "synthesizing_findings"
-    # Consolidate findings
-    all_f = (state.get("static_analysis_findings", []) + 
-             state.get("pattern_analysis_findings", []) + 
-             state.get("security_findings", []) +
-             state.get("performance_findings", []) +
-             state.get("testing_findings", []) +
-             state.get("logic_findings", []) +
-             state.get("policy_findings", []))
-    state["all_findings"] = all_f
-    state["prioritized_issues"] = sorted(all_f, key=lambda x: x.get("severity", "info"))
-    return state
-
-def generate_fixes_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "generating_fixes"
-    return state
-
-def create_reports_node(state: CodeReviewState) -> CodeReviewState:
-    state["current_step"] = "creating_reports"
-    state["markdown_report"] = "# Code Review Report\nGenerated report content."
-    return state
 
 def should_generate_fixes(state: CodeReviewState) -> str:
     """Determine if fixes should be generated."""
     if not state.get("auto_fix_enabled", False):
         return "skip_fixes"
     return "generate_fixes"
+
 
 # Create the graph
 def create_code_review_graph():
@@ -98,24 +63,27 @@ def create_code_review_graph():
     workflow.add_edge("testing_assessment", "logic_verification")
     workflow.add_edge("logic_verification", "policy_verification")
     workflow.add_edge("policy_verification", "synthesis")
-    
-    # Conditional edge for fixes with human-in-the-loop approval
+
+    # Conditional edge: propose fixes only when asked (--auto-fix)
     workflow.add_conditional_edges(
         "synthesis",
         should_generate_fixes,
-        {
-            "generate_fixes": "fix_generation",
-            "skip_fixes": "reporting"
-        }
+        {"generate_fixes": "fix_generation", "skip_fixes": "reporting"},
     )
     workflow.add_edge("fix_generation", "reporting")
     workflow.add_edge("reporting", END)
 
-    # Compile with checkpointer for HITL
+    # Compile with a checkpointer (per-thread state).
+    #
+    # interrupt_before=["fix_generation"] used to sit here "for user approval".
+    # The CLI never resumed the graph, so with --auto-fix -- the default at the
+    # time -- every run stopped after synthesis and no report was written.
+    # Nothing applies a fix, so there is nothing to approve: proposals go into
+    # the report for a human to read.
     memory = MemorySaver()
     return workflow.compile(
         checkpointer=memory,
-        interrupt_before=["fix_generation"]  # Wait for user approval
     )
+
 
 app = create_code_review_graph()
